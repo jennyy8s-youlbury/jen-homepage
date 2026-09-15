@@ -1,0 +1,52 @@
+Category,Title,URL,Icon
+HR,SelectHR,"https://identity.accessacloud.com/auth/signin?returnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Daccess.cloud.platform%26response_type%3Did_token%2520code%26scope%3Dopenid%2520email%2520policy%2520offline_access%2520access.cloud.document%2520access.cloud.document.admin%2520profile%26redirect_uri%3Dhttps%253A%252F%252Fgo.accessacloud.com%252Fidentity%252Fcallback%26state%3DSignIn-2043919021c24a4d8c6df0816586b44f%26nonce%3DuSWlejHpq_Y0Pz8s1EtodumX7JPy_Bx07VIES87rMuA%26acr_values%3Dtenant%253Athe-scouts%26response_mode%3Dform_post%26code_challenge%3DwiBjXPNjBpraywxXAvy1TD_f3hZ-QYx3oC7rLa8knHc%26code_challenge_method%3DS256",https://identity.accessacloud.com/favicon.ico
+HR,Learning,https://go.accessacloud.com/o/the-scouts,https://identity.accessacloud.com/favicon.ico
+HR,Return To Work,https://thescouts.sharepoint.com/sites/PeopleCulture/SitePages/Health%20and%20Wellbeing.aspx#sickness-absence,https://www.google.com/s2/favicons?domain=scouts.org.uk&sz=64
+HR,People Files,https://thescouts.sharepoint.com/teams/scoutadventuresintranet/SitePages/Staff-Files1.aspx,SAexplorer.jpg
+Tools,Github,https://github.com/jennyy8s-youlbury/jen-homepage/blob/main/index.html,https://www.google.com/s2/favicons?domain=github.com&sz=64
+Apps & Portals,Amazon Approval,https://www.amazon.co.uk/ab/approvals/purchase/pending/,https://www.google.com/s2/favicons?domain=amazon.co.uk&sz=64
+Apps & Portals,Daily Activities,https://app.cinolla.com/rota/assignstaffresources,https://www.google.com/s2/favicons?domain=app.cinolla.com&sz=64
+Apps & Portals,Staff Rota,https://app.cinolla.com/v2/rota#/,https://www.google.com/s2/favicons?domain=app.cinolla.com&sz=64
+Apps & Portals,Cinolla Catering,https://app.cinolla.com/v2/reporting/catering/centrecatering,https://www.google.com/s2/favicons?domain=app.cinolla.com&sz=64
+Apps & Portals,YB Planner,"https://planner.cloud.microsoft/webui/plan/bBCYNebuaU6BbfyiaM2--JYABJ0N/view/board?tid=798642fb-cd3d-4af4-96b7-c61aa42e9c94&userObjectId=d1387404-4675-4ce2-bca1-e98ac3a0c5d9&PlannerRouteHint=798642fb-cd3d-4af4-96b7-c61aa42e9c94",https://www.google.com/s2/favicons?domain=planner.cloud.microsoft&sz=64
+Apps & Portals,Facilities Planner,"https://planner.cloud.microsoft/webui/plan/jYSJl3j4rk6C5lBzAhoamZYAE0LB/view/board/task/_zZbLmTq6UO5i_xS7gnKK5YAMiUu?tid=798642fb-cd3d-4af4-96b7-c61aa42e9c94",https://www.google.com/s2/favicons?domain=planner.cloud.microsoft&sz=64
+Apps & Portals,Gemini,https://gemini.google.com/app,https://www.google.com/s2/favicons?domain=gemini.google.com&sz=64
+Apps & Portals,SA Intranet,https://thescouts.sharepoint.com/teams/scoutadventuresintranet,"https://thescouts.sharepoint.com/teams/scoutadventuresintranet/_api/siteiconmanager/getsitelogo?type=%271%27&hash=637675066733788399"
+Apps & Portals,Intranet,"https://thescouts.sharepoint.com/sites/ScoutAdventuresHub?CT=1778680864493&OR=OWA-NT-Mail&CID=f2e57017-917a-3db2-9b12-2696d11f9a0f",https://thescouts.sharepoint.com/sites/ScoutAdventuresHub/SiteAssets/__sitelogo__navigationlogo.png
+Apps & Portals,Github Home,https://github.com/jennyy8s-youlbury/jen-homepage/blob/main/index.html,https://www.google.com/s2/favicons?domain=github.com&sz=64
+Apps & Portals,ipos,https://scouts-ipos.sapphire-cloud.net/iPOS/UI/Home.aspx,https://scouts-ipos.sapphire-cloud.net/iPOS/UI/Images/iPOS.ico
+Apps & Portals,Invoices,https://thescouts.servicedeskplus.uk/app/financedesk/HomePage.do,https://servicedeskplus.uk/favicon.ico
+Apps & Portals,Talos Recruitment,https://talos360.com/applicants/list/unassessed/926558,"https://talos360.com/favicon.ico?v=2"
+Apps & Portals,Adaptive Insights,https://login.adaptiveinsights.com/app,https://www.google.com/s2/favicons?domain=adaptiveinsights.com&sz=64
+Apps & Portals,Catering app,"https://apps.powerapps.com/play/e/default-798642fb-cd3d-4af4-96b7-c61aa42e9c94/a/f7bfa089-cdeb-43b3-95d5-0533e3ae4214?tenantId=798642fb-cd3d-4af4-96b7-c61aa42e9c94&source=portal",https://www.google.com/s2/favicons?domain=apps.powerapps.com&sz=64
+Apps & Portals,Events Air,https://scouts.planner.eventsair.com/event/selection,https://www.google.com/s2/favicons?domain=eventsair.com&sz=64
+Apps & Portals,Bidfood,https://www.bidfooddirect.co.uk/#/home,https://www.bidfooddirect.co.uk/content/images/site/default/logo.png
+Apps & Portals,Zendesk,https://scoutadventures.zendesk.com/agent/home/tickets?channel=web,https://www.google.com/s2/favicons?domain=zendesk.com&sz=64
+Apps & Portals,Reconomy Waste,https://portal.reconomy.com/,https://www.google.com/s2/favicons?domain=portal.reconomy.com&sz=64
+Apps & Portals,Webexpenses,https://logon.webexpenses.com/,https://www.google.com/s2/favicons?domain=webexpenses.com&sz=64
+Documents & Spreadsheets,Prices 2026,https://www.scoutadventures.org.uk/sites/default/files/2025-10/Scouts%20and%20Guides%20Price%20List%202026%20-%20Youlbury.pdf,https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/330px-PDF_file_icon.svg.png
+Documents & Spreadsheets,Youlbury Docs,"https://thescouts.sharepoint.com/teams/scoutadventuresintranet/Operations%20%20Policies%20and%20Proceedures/Forms/AllItems.aspx?FolderCTID=0x012000B3BEFA22F0029F42A0DD8F9D5AD53226&id=%2Fteams%2Fscoutadventuresintranet%2FOperations%20%20Policies%20and%20Proceedures%2FYoulbury",SAexplorer.jpg
+Documents & Spreadsheets,Volunteer List,"https://thescouts.sharepoint.com/teams/scoutadventuresintranet/Lists/Master%20Volunteer%20List/Centre.aspx?viewid=ac0d39f5%2Dece9%2D47f5%2D86ea%2D2e70a5d13f07&CT=1780744627385&OR=OWA%2DNT%2DMail&CID=59e8de7b%2D89ce%2D0244%2D01ce%2Dcd710cd6d184&SI=NonSentItems",SAexcel.jpg
+Documents & Spreadsheets,ITC Sept 2026,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/_layouts/15/Doc.aspx?sourcedoc=%7B2BACE728-8867-4F20-A077-6F815DC9B6B3%7D&file=September%202026%20ITC%20Timetable.xlsx&action=default&mobileredirect=true",SAexcel.jpg
+Documents & Spreadsheets,New Project Brief,"https://thescouts.sharepoint.com/:w:/s/Facilitieshub/IQANl1C8393QQ5i73DNxzNIeATxTl95ZD8iwZMSy0RhRMJo?web=1",saword.jpg
+Documents & Spreadsheets,Vol Training Plan,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/Operations%20%20Policies%20and%20Proceedures/Youlbury/Volunteers/Training/YB%20Volunteer%20Training%202026-2027%20.xlsx?d=w649d64c591864951a10281fa2f8157e1&csf=1&web=1&e=RMwjCX",SAexcel.jpg
+Documents & Spreadsheets,Observation Matrix,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/_layouts/15/Doc.aspx?sourcedoc=%7BACE6D8BB-EBCE-493D-814B-A33FB11612E0%7D&file=Youlbury%20Observation%20Matrix.xlsm&action=default&mobileredirect=true",SAexcel.jpg
+Documents & Spreadsheets,Jodie's Vol Numbers,"https://thescouts-my.sharepoint.com/:x:/g/personal/nicola_brown_scouts_org_uk2/IQBvNJdGT62FTINmSn2fW0FcAV5IDPJCcv3JX7MIip63GEU?e=KjNAgr",SAexcel.jpg
+Documents & Spreadsheets,Site Plans,https://thescouts.sharepoint.com/sites/Facilitieshub/Workplace%20Service/Forms/AllItems.aspx?id=%2Fsites%2FFacilitieshub%2FWorkplace%20Service%2FPlans%2FYoulbury%2FCurrent%20Plans,SAexplorer.jpg
+Documents & Spreadsheets,Site Catering,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/_layouts/15/Doc.aspx?sourcedoc=%7BB9205AA5-05EB-4BE5-BC7D-A1AC7F692377%7D&file=Youlbury%20Catering%202026.xlsx&action=default&mobileredirect=true",SAexcel.jpg
+Documents & Spreadsheets,Vehicle Hire Log,https://thescouts.sharepoint.com/sites/Facilitieshub/Lists/Hire%20Vehicle%20Log/AllItems.aspx,SAexcel.jpg
+Documents & Spreadsheets,Income Tracker,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/_layouts/15/Doc.aspx?sourcedoc=%7B2C3518FD-6B3A-4947-B649-BAB59E343530%7D&file=Income%20tracker%20-%20Youlbury%20FY27.xlsx&action=default&mobileredirect=true",SAexcel.jpg
+Documents & Spreadsheets,Leaving Checklist,"https://thescouts.sharepoint.com/:x:/r/teams/scoutadventuresintranet/_layouts/15/Doc.aspx?sourcedoc=%7B43A70C17-3EB6-4F1F-A79A-CD8E0F0B1088%7D&file=leaving%20checklist.xlsx&action=default&mobileredirect=true",SAexcel.jpg
+Forms & Services,Report Incident,https://survey.alchemer.eu/s3/90125236/HQ-Incident-Reporting,https://www.google.com/s2/favicons?domain=scouts.org.uk&sz=64
+Forms & Services,New Volunteer Concern,"https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=-0KGeT3N9EqWt8YapC6clKJ0mRlRxvBKmkkrcCD5bDxUMjY1NzVPNjM5NzNUQU1TVkIyTzJYUVFCSCQlQCN0PWcu",https://www.google.com/s2/favicons?domain=scouts.org.uk&sz=64
+Forms & Services,New Maintenance,"https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=-0KGeT3N9EqWt8YapC6clKJ0mRlRxvBKmkkrcCD5bDxUQThETjVCUzZZMFc3NVU4MlBCS01VUk5OSSQlQCN0PWcu",https://www.google.com/s2/favicons?domain=scouts.org.uk&sz=64
+Policies and Procedures,A to Z Guidance,https://thescouts.sharepoint.com/sites/HealthandSafety/SitePages/A%20to%20Z%20Library%20of%20guidance%20&%20templates.aspx,SAexplorer.jpg
+Policies and Procedures,Safeguarding,https://www.scouts.org.uk/about-us/policy/safeguarding-policy-and-procedures/,SAexplorer.jpg
+Policies and Procedures,Report Safeguarding,https://www.scouts.org.uk/volunteers/staying-safe-and-safeguarding/reporting-a-concern-to-safeguarding/safeguarding-process/,SAexplorer.jpg
+Policies and Procedures,Safeguarding Suspensions,https://www.scouts.org.uk/volunteers/running-things-locally/tools-to-support-leadership-teams/suspensions/suspensions-for-safeguarding-reasons/,SAexplorer.jpg
+Policies and Procedures,Deputy Role,"https://whiteboard.cloud.microsoft/me/whiteboards/p/c3BvOmh0dHBzOi8vdGhlc2NvdXRzLW15LnNoYXJlcG9pbnQuY29tL3BlcnNvbmFsL2pvZGllX2JldHRfc2NvdXRz_b!7O6JqHg8LEytxZnPLGQTq8Td1Xto1xNBi4FCQvi-Mj15kPe7sKgWRa4vvXbgtUiJ/01PJ5ISS5AWZQHJIHTIJHZIQQD3NSG5XVP?fromShare=true",saword.jpg
+Policies and Procedures,CEC Role,"https://thescouts-my.sharepoint.com/:wb:/r/personal/jodie_bett_scouts_org_uk/Documents/Whiteboards/Customer%20Experience%20.whiteboard?e=4%3a5c44936862c94bfd80a5de7b1abab164&web=1&sharingv2=true&fromShare=true&at=9",saword.jpg
+Personal,Photos,https://photos.google.com/,https://www.google.com/s2/favicons?domain=photos.google.com/&sz=64
+Personal,Payslips,https://scoutsassociation.hcm.zellis.com/myview/dashboard-ui/index.html#/landing,https://www.google.com/s2/favicons?domain=zellis.com&sz=64
+Personal,Cetra BRV Insurance,https://secure.ceta-online.co.uk/customerzone/index.asp,https://www.google.com/s2/favicons?domain=www.cetainsurance.co.uk&sz=64
+Personal,Simply Health,https://www.simplyhealth.co.uk/member-portal/my-health/health-area/96066408506758,https://www.google.com/s2/favicons?domain=simplyhealth.co.uk&sz=64
