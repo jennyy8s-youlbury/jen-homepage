@@ -31,22 +31,19 @@
       width: 260px;
     }
 
-    /* Relative container to anchor absolute overlay elements */
-    .card-wrapper {
-      position: relative;
-      display: inline-block;
-      width: 100%;
+    /* Anchor position for overlay pin button inside the card */
+    .card {
+      position: relative !important;
     }
 
-    /* Overlay star button */
+    /* Floating overlay pin button */
     .pin-overlay-btn {
       position: absolute;
       top: 6px;
       right: 6px;
-      z-index: 2;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(2px);
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.12);
       border-radius: 50%;
       width: 24px;
       height: 24px;
@@ -56,21 +53,21 @@
       cursor: pointer;
       font-size: 13px;
       line-height: 1;
-      opacity: 0; /* Hidden by default */
+      opacity: 0; /* Hidden until hovered */
       transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
-      color: #ccc;
+      color: #bbb;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Reveal overlay button on card hover */
-    .card-wrapper:hover .pin-overlay-btn {
+    /* Show star when card is hovered */
+    .card:hover .pin-overlay-btn {
       opacity: 1;
     }
 
-    /* Always show pinned stars */
+    /* Always keep pinned stars visible in gold */
     .pin-overlay-btn.pinned {
       opacity: 1;
-      color: #f1c40f; /* Golden yellow star */
+      color: #f1c40f;
       border-color: #f1c40f;
     }
 
@@ -94,7 +91,7 @@
   <div id="app">Loading homepage...</div>
 
   <script>
-    // 1. Manage Pinned State in LocalStorage
+    // 1. Storage Helpers
     const STORAGE_KEY = "homepage_pinned_links";
 
     function getPinnedLinks() {
@@ -118,27 +115,25 @@
       complete: function(results) {
         const rows = results.data;
 
-        // Helper to render an individual card HTML
+        // Helper to render card without disrupting .grid structure
         function renderCard(item, isPinned) {
           return `
-            <div class="card-wrapper" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
-              <a href="${item.URL}" class="card">
-                <img src="${item.Icon}" alt="${item.Title}">
-                <span>${item.Title}</span>
-              </a>
+            <a href="${item.URL}" class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
               <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
                 ★
               </button>
-            </div>
+              <img src="${item.Icon}" alt="${item.Title}">
+              <span>${item.Title}</span>
+            </a>
           `;
         }
 
-        // 2. Render Categories & Items
+        // 2. Main Render Loop
         function renderPage() {
           const currentPinned = getPinnedLinks();
           let htmlOutput = "";
 
-          // Render Pinned Section if any item is pinned
+          // Render Pinned Section first
           const pinnedItems = rows.filter(r => currentPinned.includes(r.URL));
           if (pinnedItems.length > 0) {
             htmlOutput += `<section class="category-group pinned-section">`;
@@ -174,18 +169,19 @@
           attachEventListeners();
         }
 
-        // 3. Event Listeners for Pinning and Searching
+        // 3. Event Handling
         function attachEventListeners() {
-          // Handle Overlay Pin Button Clicks
+          // Handle Pin Button Clicks without triggering link navigation
           document.querySelectorAll(".pin-overlay-btn").forEach(btn => {
             btn.addEventListener("click", function(e) {
               e.preventDefault();
-              e.stopPropagation();
+              e.stopPropagation(); // Prevents clicking the link underlying the star
+              
               const url = this.getAttribute("data-pin-url");
               togglePin(url);
-              renderPage(); // Re-render page to update pinned section
+              renderPage();
               
-              // Retain active search input after re-render
+              // Retain existing search filter after re-render
               const searchInput = document.getElementById("searchInput");
               if (searchInput.value) {
                 searchInput.dispatchEvent(new Event("input"));
@@ -204,18 +200,18 @@
           const categorySections = document.querySelectorAll(".category-group");
 
           categorySections.forEach(section => {
-            const wrappers = section.querySelectorAll(".card-wrapper");
+            const cards = section.querySelectorAll(".card");
             let visibleCardsCount = 0;
 
-            wrappers.forEach(wrapper => {
-              const title = wrapper.getAttribute("data-title");
-              const url = wrapper.getAttribute("data-url");
+            cards.forEach(card => {
+              const title = card.getAttribute("data-title");
+              const url = card.getAttribute("data-url");
 
               if (title.includes(query) || url.includes(query)) {
-                wrapper.classList.remove("hidden");
+                card.classList.remove("hidden");
                 visibleCardsCount++;
               } else {
-                wrapper.classList.add("hidden");
+                card.classList.add("hidden");
               }
             });
 
