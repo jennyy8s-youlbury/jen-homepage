@@ -7,8 +7,43 @@
   <link rel="stylesheet" href="style.css">
   <!-- PapaParse CSV Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    /* Header layout for title/search bar positioning */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      margin-bottom: 20px;
+    }
+
+    .search-box {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      width: 200px;
+      transition: width 0.2s ease, border-color 0.2s ease;
+    }
+
+    .search-box:focus {
+      border-color: #0066cc;
+      width: 260px;
+    }
+
+    /* Utility class to hide filtered items and empty categories */
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
+
+  <header class="header-bar">
+    <h1>Homepage</h1>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search links..." aria-label="Search links">
+  </header>
 
   <div id="app">Loading homepage...</div>
 
@@ -30,26 +65,59 @@
           categories[cat].push(row);
         });
 
-        // Generate HTML markup
+        // Generate HTML markup with category sections
         let htmlOutput = "";
         for (const [categoryName, items] of Object.entries(categories)) {
+          htmlOutput += `<section class="category-group">`;
           htmlOutput += `<h2>${categoryName}</h2>`;
           htmlOutput += `<div class="grid">`;
           
           items.forEach(item => {
             htmlOutput += `
-              <a href="${item.URL}" class="card">
+              <a href="${item.URL}" class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
                 <img src="${item.Icon}" alt="${item.Title}">
                 <span>${item.Title}</span>
               </a>
             `;
           });
 
-          htmlOutput += `</div>`;
+          htmlOutput += `</div></section>`;
         }
 
         // Render to DOM
         document.getElementById("app").innerHTML = htmlOutput;
+
+        // Attach Real-time Filter Listener
+        const searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", function() {
+          const query = this.value.toLowerCase().trim();
+          const categorySections = document.querySelectorAll(".category-group");
+
+          categorySections.forEach(section => {
+            const cards = section.querySelectorAll(".card");
+            let visibleCardsCount = 0;
+
+            cards.forEach(card => {
+              const title = card.getAttribute("data-title");
+              const url = card.getAttribute("data-url");
+
+              // Check if query matches title or URL
+              if (title.includes(query) || url.includes(query)) {
+                card.classList.remove("hidden");
+                visibleCardsCount++;
+              } else {
+                card.classList.add("hidden");
+              }
+            });
+
+            // Hide category heading entirely if no matching cards remain
+            if (visibleCardsCount === 0) {
+              section.classList.add("hidden");
+            } else {
+              section.classList.remove("hidden");
+            }
+          });
+        });
       },
       error: function(err) {
         document.getElementById("app").innerHTML = "<p>Error loading CSV data.</p>";
