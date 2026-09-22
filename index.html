@@ -8,7 +8,6 @@
   <!-- PapaParse CSV Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    /* Header layout for title/search bar positioning */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -32,7 +31,47 @@
       width: 260px;
     }
 
-    /* Utility class to hide filtered items and empty categories */
+    /* Card styling with pin button positioning */
+    .card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .pin-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      opacity: 0.3;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+      padding: 2px;
+    }
+
+    .card:hover .pin-btn {
+      opacity: 0.8;
+    }
+
+    .pin-btn.pinned {
+      opacity: 1;
+      color: #f39c12; /* Golden star */
+    }
+
+    .pin-btn:hover {
+      transform: scale(1.2);
+    }
+
     .hidden {
       display: none !important;
     }
@@ -48,49 +87,113 @@
   <div id="app">Loading homepage...</div>
 
   <script>
+    // 1. Manage Pinned State in LocalStorage
+    const STORAGE_KEY = "homepage_pinned_links";
+
+    function getPinnedLinks() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    }
+
+    function togglePin(url) {
+      let pinned = getPinnedLinks();
+      if (pinned.includes(url)) {
+        pinned = pinned.filter(itemUrl => itemUrl !== url);
+      } else {
+        pinned.push(url);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pinned));
+    }
+
     Papa.parse("links.csv", {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: function(results) {
         const rows = results.data;
+        const pinnedList = getPinnedLinks();
 
-        // Group rows by category
-        const categories = {};
-        rows.forEach(row => {
-          const cat = row.Category ? row.Category.trim() : "Other";
-          if (!categories[cat]) {
-            categories[cat] = [];
-          }
-          categories[cat].push(row);
-        });
-
-        // Generate HTML markup with category sections
-        let htmlOutput = "";
-        for (const [categoryName, items] of Object.entries(categories)) {
-          htmlOutput += `<section class="category-group">`;
-          htmlOutput += `<h2>${categoryName}</h2>`;
-          htmlOutput += `<div class="grid">`;
-          
-          items.forEach(item => {
-            htmlOutput += `
-              <a href="${item.URL}" class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
-                <img src="${item.Icon}" alt="${item.Title}">
+        // Helper to render an individual card HTML
+        function renderCard(item, isPinned) {
+          return `
+            <div class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+              <a href="${item.URL}" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; width:100%;">
+                <img src="${item.Icon}" alt="${item.Title}" width="20" height="20">
                 <span>${item.Title}</span>
               </a>
-            `;
-          });
-
-          htmlOutput += `</div></section>`;
+              <button class="pin-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
+                ★
+              </button>
+            </div>
+          `;
         }
 
-        // Render to DOM
-        document.getElementById("app").innerHTML = htmlOutput;
+        // 2. Render Categories & Items
+        function renderPage() {
+          const currentPinned = getPinnedLinks();
+          let htmlOutput = "";
 
-        // Attach Real-time Filter Listener
-        const searchInput = document.getElementById("searchInput");
-        searchInput.addEventListener("input", function() {
-          const query = this.value.toLowerCase().trim();
+          // Render Pinned Section if any item is pinned
+          const pinnedItems = rows.filter(r => currentPinned.includes(r.URL));
+          if (pinnedItems.length > 0) {
+            htmlOutput += `<section class="category-group pinned-section">`;
+            htmlOutput += `<h2>📌 Pinned</h2>`;
+            htmlOutput += `<div class="grid">`;
+            pinnedItems.forEach(item => {
+              htmlOutput += renderCard(item, true);
+            });
+            htmlOutput += `</div></section>`;
+          }
+
+          // Group standard rows by Category
+          const categories = {};
+          rows.forEach(row => {
+            const cat = row.Category ? row.Category.trim() : "Other";
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(row);
+          });
+
+          // Render Normal Category Sections
+          for (const [categoryName, items] of Object.entries(categories)) {
+            htmlOutput += `<section class="category-group">`;
+            htmlOutput += `<h2>${categoryName}</h2>`;
+            htmlOutput += `<div class="grid">`;
+            items.forEach(item => {
+              const isPinned = currentPinned.includes(item.URL);
+              htmlOutput += renderCard(item, isPinned);
+            });
+            htmlOutput += `</div></section>`;
+          }
+
+          document.getElementById("app").innerHTML = htmlOutput;
+          attachEventListeners();
+        }
+
+        // 3. Event Listeners for Pinning and Searching
+        function attachEventListeners() {
+          // Handle Pin Button Clicks
+          document.querySelectorAll(".pin-btn").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+              e.preventDefault();
+              const url = this.getAttribute("data-pin-url");
+              togglePin(url);
+              renderPage(); // Re-render page to move/update pinned items
+              
+              // Maintain current search query after re-render
+              const searchInput = document.getElementById("searchInput");
+              if (searchInput.value) {
+                searchInput.dispatchEvent(new Event("input"));
+              }
+            });
+          });
+
+          // Search Filter Logic
+          const searchInput = document.getElementById("searchInput");
+          searchInput.removeEventListener("input", filterLinks);
+          searchInput.addEventListener("input", filterLinks);
+        }
+
+        function filterLinks() {
+          const query = document.getElementById("searchInput").value.toLowerCase().trim();
           const categorySections = document.querySelectorAll(".category-group");
 
           categorySections.forEach(section => {
@@ -101,7 +204,6 @@
               const title = card.getAttribute("data-title");
               const url = card.getAttribute("data-url");
 
-              // Check if query matches title or URL
               if (title.includes(query) || url.includes(query)) {
                 card.classList.remove("hidden");
                 visibleCardsCount++;
@@ -110,14 +212,16 @@
               }
             });
 
-            // Hide category heading entirely if no matching cards remain
             if (visibleCardsCount === 0) {
               section.classList.add("hidden");
             } else {
               section.classList.remove("hidden");
             }
           });
-        });
+        }
+
+        // Initial Render
+        renderPage();
       },
       error: function(err) {
         document.getElementById("app").innerHTML = "<p>Error loading CSV data.</p>";
