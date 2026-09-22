@@ -31,45 +31,52 @@
       width: 260px;
     }
 
-    /* Card styling with pin button positioning */
-    .card {
+    /* Relative container to anchor absolute overlay elements */
+    .card-wrapper {
       position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      background: #fff;
+      display: inline-block;
+      width: 100%;
     }
 
-    .pin-btn {
+    /* Overlay star button */
+    .pin-overlay-btn {
       position: absolute;
       top: 6px;
       right: 6px;
-      background: transparent;
-      border: none;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 13px;
       line-height: 1;
-      opacity: 0.3;
-      transition: opacity 0.2s ease, transform 0.1s ease;
-      padding: 2px;
+      opacity: 0; /* Hidden by default */
+      transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
+      color: #ccc;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    .card:hover .pin-btn {
-      opacity: 0.8;
-    }
-
-    .pin-btn.pinned {
+    /* Reveal overlay button on card hover */
+    .card-wrapper:hover .pin-overlay-btn {
       opacity: 1;
-      color: #f39c12; /* Golden star */
     }
 
-    .pin-btn:hover {
-      transform: scale(1.2);
+    /* Always show pinned stars */
+    .pin-overlay-btn.pinned {
+      opacity: 1;
+      color: #f1c40f; /* Golden yellow star */
+      border-color: #f1c40f;
+    }
+
+    .pin-overlay-btn:hover {
+      transform: scale(1.15);
+      color: #f39c12;
     }
 
     .hidden {
@@ -110,17 +117,16 @@
       skipEmptyLines: true,
       complete: function(results) {
         const rows = results.data;
-        const pinnedList = getPinnedLinks();
 
         // Helper to render an individual card HTML
         function renderCard(item, isPinned) {
           return `
-            <div class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
-              <a href="${item.URL}" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; width:100%;">
-                <img src="${item.Icon}" alt="${item.Title}" width="20" height="20">
+            <div class="card-wrapper" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+              <a href="${item.URL}" class="card">
+                <img src="${item.Icon}" alt="${item.Title}">
                 <span>${item.Title}</span>
               </a>
-              <button class="pin-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
+              <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
                 ★
               </button>
             </div>
@@ -170,15 +176,16 @@
 
         // 3. Event Listeners for Pinning and Searching
         function attachEventListeners() {
-          // Handle Pin Button Clicks
-          document.querySelectorAll(".pin-btn").forEach(btn => {
+          // Handle Overlay Pin Button Clicks
+          document.querySelectorAll(".pin-overlay-btn").forEach(btn => {
             btn.addEventListener("click", function(e) {
               e.preventDefault();
+              e.stopPropagation();
               const url = this.getAttribute("data-pin-url");
               togglePin(url);
-              renderPage(); // Re-render page to move/update pinned items
+              renderPage(); // Re-render page to update pinned section
               
-              // Maintain current search query after re-render
+              // Retain active search input after re-render
               const searchInput = document.getElementById("searchInput");
               if (searchInput.value) {
                 searchInput.dispatchEvent(new Event("input"));
@@ -197,18 +204,18 @@
           const categorySections = document.querySelectorAll(".category-group");
 
           categorySections.forEach(section => {
-            const cards = section.querySelectorAll(".card");
+            const wrappers = section.querySelectorAll(".card-wrapper");
             let visibleCardsCount = 0;
 
-            cards.forEach(card => {
-              const title = card.getAttribute("data-title");
-              const url = card.getAttribute("data-url");
+            wrappers.forEach(wrapper => {
+              const title = wrapper.getAttribute("data-title");
+              const url = wrapper.getAttribute("data-url");
 
               if (title.includes(query) || url.includes(query)) {
-                card.classList.remove("hidden");
+                wrapper.classList.remove("hidden");
                 visibleCardsCount++;
               } else {
-                card.classList.add("hidden");
+                wrapper.classList.add("hidden");
               }
             });
 
