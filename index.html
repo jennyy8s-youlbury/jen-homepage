@@ -139,7 +139,7 @@
         function renderCard(item, isPinned) {
           const draggableAttr = isPinned ? 'draggable="true"' : '';
           return `
-            <a href="${item.URL}" class="card" ${draggableAttr} data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+            <a href="${item.URL}" class="card" ${draggableAttr} data-pin-url="${item.URL}" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
               <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
                 ★
               </button>
