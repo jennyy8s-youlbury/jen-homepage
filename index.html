@@ -267,4 +267,64 @@
                 const targetUrl = this.getAttribute("data-pin-url");
 
                 let pinned = getPinnedLinks();
-                const fromIndex = pinned.indexOf(
+                const fromIndex = pinned.indexOf(draggedUrl);
+                const toIndex = pinned.indexOf(targetUrl);
+
+                if (fromIndex !== -1 && toIndex !== -1) {
+                  // Remove dragged item and insert at target position
+                  pinned.splice(fromIndex, 1);
+                  pinned.splice(toIndex, 0, draggedUrl);
+
+                  setPinnedLinks(pinned);
+                  renderPage();
+
+                  // Maintain search filter if active
+                  const searchInput = document.getElementById("searchInput");
+                  if (searchInput.value) {
+                    searchInput.dispatchEvent(new Event("input"));
+                  }
+                }
+              }
+            });
+          });
+        }
+
+        function filterLinks() {
+          const query = document.getElementById("searchInput").value.toLowerCase().trim();
+          const categorySections = document.querySelectorAll(".category-group");
+
+          categorySections.forEach(section => {
+            const cards = section.querySelectorAll(".card");
+            let visibleCardsCount = 0;
+
+            cards.forEach(card => {
+              const title = card.getAttribute("data-title");
+              const url = card.getAttribute("data-url");
+
+              if (title.includes(query) || url.includes(query)) {
+                card.classList.remove("hidden");
+                visibleCardsCount++;
+              } else {
+                card.classList.add("hidden");
+              }
+            });
+
+            if (visibleCardsCount === 0) {
+              section.classList.add("hidden");
+            } else {
+              section.classList.remove("hidden");
+            }
+          });
+        }
+
+        // Initial Render
+        renderPage();
+      },
+      error: function(err) {
+        document.getElementById("app").innerHTML = "<p>Error loading CSV data.</p>";
+        console.error("PapaParse error:", err);
+      }
+    });
+  </script>
+</body>
+</html>
