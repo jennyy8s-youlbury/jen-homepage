@@ -34,6 +34,22 @@
     /* Anchor position for overlay pin button inside the card */
     .card {
       position: relative !important;
+      user-select: none;
+    }
+
+    /* Visual styles for drag operations */
+    .pinned-section .card {
+      cursor: grab;
+    }
+
+    .pinned-section .card.dragging {
+      opacity: 0.4;
+      cursor: grabbing;
+    }
+
+    .pinned-section .card.drag-over {
+      outline: 2px dashed #0066cc;
+      outline-offset: 2px;
     }
 
     /* Floating overlay pin button */
@@ -98,6 +114,10 @@
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     }
 
+    function setPinnedLinks(pinnedArray) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pinnedArray));
+    }
+
     function togglePin(url) {
       let pinned = getPinnedLinks();
       if (pinned.includes(url)) {
@@ -105,7 +125,7 @@
       } else {
         pinned.push(url);
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pinned));
+      setPinnedLinks(pinned);
     }
 
     Papa.parse("links.csv", {
@@ -117,8 +137,9 @@
 
         // Helper to render card without disrupting .grid structure
         function renderCard(item, isPinned) {
+          const draggableAttr = isPinned ? 'draggable="true"' : '';
           return `
-            <a href="${item.URL}" class="card" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+            <a href="${item.URL}" class="card" ${draggableAttr} data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
               <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
                 ★
               </button>
@@ -133,12 +154,17 @@
           const currentPinned = getPinnedLinks();
           let htmlOutput = "";
 
-          // Render Pinned Section first
-          const pinnedItems = rows.filter(r => currentPinned.includes(r.URL));
+          // Render Pinned Section first (ordered by currentPinned array)
+          const pinnedItems = [];
+          currentPinned.forEach(url => {
+            const found = rows.find(r => r.URL === url);
+            if (found) pinnedItems.push(found);
+          });
+
           if (pinnedItems.length > 0) {
             htmlOutput += `<section class="category-group pinned-section">`;
             htmlOutput += `<h2>📌 Pinned</h2>`;
-            htmlOutput += `<div class="grid">`;
+            htmlOutput += `<div class="grid" id="pinnedGrid">`;
             pinnedItems.forEach(item => {
               htmlOutput += renderCard(item, true);
             });
@@ -175,7 +201,7 @@
           document.querySelectorAll(".pin-overlay-btn").forEach(btn => {
             btn.addEventListener("click", function(e) {
               e.preventDefault();
-              e.stopPropagation(); // Prevents clicking the link underlying the star
+              e.stopPropagation();
               
               const url = this.getAttribute("data-pin-url");
               togglePin(url);
@@ -189,48 +215,56 @@
             });
           });
 
+          // Setup Drag and Drop for Pinned Section
+          setupDragAndDrop();
+
           // Search Filter Logic
           const searchInput = document.getElementById("searchInput");
           searchInput.removeEventListener("input", filterLinks);
           searchInput.addEventListener("input", filterLinks);
         }
 
-        function filterLinks() {
-          const query = document.getElementById("searchInput").value.toLowerCase().trim();
-          const categorySections = document.querySelectorAll(".category-group");
+        function setupDragAndDrop() {
+          const pinnedContainer = document.getElementById("pinnedGrid");
+          if (!pinnedContainer) return;
 
-          categorySections.forEach(section => {
-            const cards = section.querySelectorAll(".card");
-            let visibleCardsCount = 0;
+          let draggedItem = null;
 
-            cards.forEach(card => {
-              const title = card.getAttribute("data-title");
-              const url = card.getAttribute("data-url");
+          const cards = pinnedContainer.querySelectorAll(".card");
+          cards.forEach(card => {
+            card.addEventListener("dragstart", function(e) {
+              draggedItem = this;
+              this.classList.add("dragging");
+              e.dataTransfer.effectAllowed = "move";
+              e.dataTransfer.setData("text/plain", this.getAttribute("data-pin-url"));
+            });
 
-              if (title.includes(query) || url.includes(query)) {
-                card.classList.remove("hidden");
-                visibleCardsCount++;
-              } else {
-                card.classList.add("hidden");
+            card.addEventListener("dragend", function() {
+              this.classList.remove("dragging");
+              cards.forEach(c => c.classList.remove("drag-over"));
+              draggedItem = null;
+            });
+
+            card.addEventListener("dragover", function(e) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
+              if (this !== draggedItem) {
+                this.classList.add("drag-over");
               }
             });
 
-            if (visibleCardsCount === 0) {
-              section.classList.add("hidden");
-            } else {
-              section.classList.remove("hidden");
-            }
-          });
-        }
+            card.addEventListener("dragleave", function() {
+              this.classList.remove("drag-over");
+            });
 
-        // Initial Render
-        renderPage();
-      },
-      error: function(err) {
-        document.getElementById("app").innerHTML = "<p>Error loading CSV data.</p>";
-        console.error("PapaParse error:", err);
-      }
-    });
-  </script>
-</body>
-</html>
+            card.addEventListener("drop", function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              this.classList.remove("drag-over");
+
+              if (draggedItem && draggedItem !== this) {
+                const draggedUrl = draggedItem.getAttribute("data-pin-url");
+                const targetUrl = this.getAttribute("data-pin-url");
+
+                let pinned = getPinnedLinks();
+                const fromIndex = pinned.indexOf(
