@@ -151,7 +151,7 @@
     </div>
   </header>
 
-  <div id="app">Loading homepage...2</div>
+  <div id="app">Loading homepage...</div>
 
   <script>
     // 1. Storage Helpers
@@ -239,4 +239,181 @@
           if (matchesSearch && matchesLetter) {
             card.classList.remove("hidden");
             visibleCardsCount++;
+          } else {
+            card.classList.add("hidden");
           }
+        });
+
+        if (visibleCardsCount === 0) {
+          section.classList.add("hidden");
+        } else {
+          section.classList.remove("hidden");
+        }
+      });
+    }
+
+    // 3. PapaParse Data Loading
+    Papa.parse("links.csv", {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        const rows = results.data;
+
+        // Render card template
+        function renderCard(item, isPinned) {
+          const draggableAttr = isPinned ? 'draggable="true"' : '';
+          return `
+            <a href="${item.URL}" class="card" ${draggableAttr} data-pin-url="${item.URL}" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+              <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
+                ★
+              </button>
+              <img src="${item.Icon || ''}" alt="${item.Title || ''}">
+              <span>${item.Title || ''}</span>
+            </a>
+          `;
+        }
+
+        // Main Render Loop
+        function renderPage() {
+          const currentPinned = getPinnedLinks();
+          let htmlOutput = "";
+
+          // Render Pinned Section first
+          const pinnedItems = [];
+          currentPinned.forEach(url => {
+            const found = rows.find(r => r.URL === url);
+            if (found) pinnedItems.push(found);
+          });
+
+          if (pinnedItems.length > 0) {
+            htmlOutput += `<section class="category-group pinned-section">`;
+            htmlOutput += `<h2>📌 Pinned</h2>`;
+            htmlOutput += `<div class="grid" id="pinnedGrid">`;
+            pinnedItems.forEach(item => {
+              htmlOutput += renderCard(item, true);
+            });
+            htmlOutput += `</div></section>`;
+          }
+
+          // Group standard rows by Category
+          const categories = {};
+          rows.forEach(row => {
+            const cat = row.Category ? row.Category.trim() : "Other";
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(row);
+          });
+
+          // Render Normal Category Sections
+          for (const [categoryName, items] of Object.entries(categories)) {
+            htmlOutput += `<section class="category-group">`;
+            htmlOutput += `<h2>${categoryName}</h2>`;
+            htmlOutput += `<div class="grid">`;
+            items.forEach(item => {
+              const isPinned = currentPinned.includes(item.URL);
+              htmlOutput += renderCard(item, isPinned);
+            });
+            htmlOutput += `</div></section>`;
+          }
+
+          document.getElementById("app").innerHTML = htmlOutput;
+          attachEventListeners();
+        }
+
+        // Event Handling
+        function attachEventListeners() {
+          // Pin button clicks
+          document.querySelectorAll(".pin-overlay-btn").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              const url = this.getAttribute("data-pin-url");
+              togglePin(url);
+              renderPage();
+            });
+          });
+
+          setupDragAndDrop();
+
+          // Search Filter Listener
+          const searchInput = document.getElementById("searchInput");
+          if (searchInput) {
+            searchInput.removeEventListener("input", filterLinks);
+            searchInput.addEventListener("input", filterLinks);
+          }
+
+          // Re-apply active search/letter filters
+          filterLinks();
+        }
+
+        function setupDragAndDrop() {
+          const pinnedContainer = document.getElementById("pinnedGrid");
+          if (!pinnedContainer) return;
+
+          let draggedItem = null;
+          const cards = pinnedContainer.querySelectorAll(".card");
+
+          cards.forEach(card => {
+            card.addEventListener("dragstart", function(e) {
+              draggedItem = this;
+              this.classList.add("dragging");
+              e.dataTransfer.effectAllowed = "move";
+              e.dataTransfer.setData("text/plain", this.getAttribute("data-pin-url"));
+            });
+
+            card.addEventListener("dragend", function() {
+              this.classList.remove("dragging");
+              cards.forEach(c => c.classList.remove("drag-over"));
+              draggedItem = null;
+            });
+
+            card.addEventListener("dragover", function(e) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
+              if (this !== draggedItem) {
+                this.classList.add("drag-over");
+              }
+            });
+
+            card.addEventListener("dragleave", function() {
+              this.classList.remove("drag-over");
+            });
+
+            card.addEventListener("drop", function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              this.classList.remove("drag-over");
+
+              if (draggedItem && draggedItem !== this) {
+                const draggedUrl = draggedItem.getAttribute("data-pin-url");
+                const targetUrl = this.getAttribute("data-pin-url");
+
+                let pinned = getPinnedLinks();
+                const fromIndex = pinned.indexOf(draggedUrl);
+                const toIndex = pinned.indexOf(targetUrl);
+
+                if (fromIndex !== -1 && toIndex !== -1) {
+                  pinned.splice(fromIndex, 1);
+                  pinned.splice(toIndex, 0, draggedUrl);
+                  setPinnedLinks(pinned);
+                  renderPage();
+                }
+              }
+            });
+          });
+        }
+
+        // Safely render A-Z buttons after DOM is parsed and data is loaded
+        renderAZButtons();
+        
+        // Render initial content
+        renderPage();
+      },
+      error: function(err) {
+        document.getElementById("app").innerHTML = "<p>Error loading CSV data. Make sure links.csv exists in the same folder and you are running via a web server (e.g., Live Server).</p>";
+        console.error("PapaParse error:", err);
+      }
+    });
+  </script>
+</body>
+</html>
