@@ -14,6 +14,49 @@
       align-items: center;
       padding: 10px 0;
       margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* A-Z Filter Bar Styles */
+    .az-filter-container {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .az-btn {
+      background: #f0f2f5;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px 7px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #333;
+      transition: all 0.15s ease;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .az-btn:hover {
+      background: #e0e0e0;
+      border-color: #999;
+    }
+
+    .az-btn.active {
+      background: #0066cc;
+      color: #ffffff;
+      border-color: #004999;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .search-box {
@@ -28,7 +71,7 @@
 
     .search-box:focus {
       border-color: #0066cc;
-      width: 260px;
+      width: 240px;
     }
 
     /* Anchor position for overlay pin button inside the card */
@@ -101,7 +144,11 @@
 
   <header class="header-bar">
     <h1>Homepage</h1>
-    <input type="text" id="searchInput" class="search-box" placeholder="Search links..." aria-label="Search links">
+    <div class="header-controls">
+      <!-- A to Z letter filter buttons container -->
+      <div id="azContainer" class="az-filter-container"></div>
+      <input type="text" id="searchInput" class="search-box" placeholder="Search links..." aria-label="Search links">
+    </div>
   </header>
 
   <div id="app">Loading homepage...</div>
@@ -109,6 +156,7 @@
   <script>
     // 1. Storage Helpers
     const STORAGE_KEY = "homepage_pinned_links";
+    let activeLetter = null; // Holds currently active A-Z letter filter
 
     function getPinnedLinks() {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -128,6 +176,46 @@
       setPinnedLinks(pinned);
     }
 
+    // 2. Generate A-Z Filter Buttons
+    function renderAZButtons() {
+      const azContainer = document.getElementById("azContainer");
+      if (!azContainer) return;
+
+      azContainer.innerHTML = "";
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+      alphabet.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "az-btn";
+        btn.textContent = letter;
+        btn.setAttribute("data-letter", letter);
+
+        if (activeLetter === letter) {
+          btn.classList.add("active");
+        }
+
+        btn.addEventListener("click", () => {
+          if (activeLetter === letter) {
+            // Un-highlight & clear filter if clicked again
+            activeLetter = null;
+            btn.classList.remove("active");
+          } else {
+            // Highlight clicked letter and clear others
+            activeLetter = letter;
+            document.querySelectorAll(".az-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+          }
+          filterLinks();
+        });
+
+        azContainer.appendChild(btn);
+      });
+    }
+
+    // Initialize A-Z Buttons
+    renderAZButtons();
+
     Papa.parse("links.csv", {
       download: true,
       header: true,
@@ -139,192 +227,5 @@
         function renderCard(item, isPinned) {
           const draggableAttr = isPinned ? 'draggable="true"' : '';
           return `
-            <a href="${item.URL}" class="card" ${draggableAttr} data-pin-url="${item.URL}" data-title="${(item.Title || '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
-              <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}">
-                ★
-              </button>
-              <img src="${item.Icon}" alt="${item.Title}">
-              <span>${item.Title}</span>
-            </a>
-          `;
-        }
-
-        // 2. Main Render Loop
-        function renderPage() {
-          const currentPinned = getPinnedLinks();
-          let htmlOutput = "";
-
-          // Render Pinned Section first (ordered by currentPinned array)
-          const pinnedItems = [];
-          currentPinned.forEach(url => {
-            const found = rows.find(r => r.URL === url);
-            if (found) pinnedItems.push(found);
-          });
-
-          if (pinnedItems.length > 0) {
-            htmlOutput += `<section class="category-group pinned-section">`;
-            htmlOutput += `<h2>📌 Pinned</h2>`;
-            htmlOutput += `<div class="grid" id="pinnedGrid">`;
-            pinnedItems.forEach(item => {
-              htmlOutput += renderCard(item, true);
-            });
-            htmlOutput += `</div></section>`;
-          }
-
-          // Group standard rows by Category
-          const categories = {};
-          rows.forEach(row => {
-            const cat = row.Category ? row.Category.trim() : "Other";
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push(row);
-          });
-
-          // Render Normal Category Sections
-          for (const [categoryName, items] of Object.entries(categories)) {
-            htmlOutput += `<section class="category-group">`;
-            htmlOutput += `<h2>${categoryName}</h2>`;
-            htmlOutput += `<div class="grid">`;
-            items.forEach(item => {
-              const isPinned = currentPinned.includes(item.URL);
-              htmlOutput += renderCard(item, isPinned);
-            });
-            htmlOutput += `</div></section>`;
-          }
-
-          document.getElementById("app").innerHTML = htmlOutput;
-          attachEventListeners();
-        }
-
-        // 3. Event Handling
-        function attachEventListeners() {
-          // Handle Pin Button Clicks without triggering link navigation
-          document.querySelectorAll(".pin-overlay-btn").forEach(btn => {
-            btn.addEventListener("click", function(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              
-              const url = this.getAttribute("data-pin-url");
-              togglePin(url);
-              renderPage();
-              
-              // Retain existing search filter after re-render
-              const searchInput = document.getElementById("searchInput");
-              if (searchInput.value) {
-                searchInput.dispatchEvent(new Event("input"));
-              }
-            });
-          });
-
-          // Setup Drag and Drop for Pinned Section
-          setupDragAndDrop();
-
-          // Search Filter Logic
-          const searchInput = document.getElementById("searchInput");
-          searchInput.removeEventListener("input", filterLinks);
-          searchInput.addEventListener("input", filterLinks);
-        }
-
-        function setupDragAndDrop() {
-          const pinnedContainer = document.getElementById("pinnedGrid");
-          if (!pinnedContainer) return;
-
-          let draggedItem = null;
-
-          const cards = pinnedContainer.querySelectorAll(".card");
-          cards.forEach(card => {
-            card.addEventListener("dragstart", function(e) {
-              draggedItem = this;
-              this.classList.add("dragging");
-              e.dataTransfer.effectAllowed = "move";
-              e.dataTransfer.setData("text/plain", this.getAttribute("data-pin-url"));
-            });
-
-            card.addEventListener("dragend", function() {
-              this.classList.remove("dragging");
-              cards.forEach(c => c.classList.remove("drag-over"));
-              draggedItem = null;
-            });
-
-            card.addEventListener("dragover", function(e) {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = "move";
-              if (this !== draggedItem) {
-                this.classList.add("drag-over");
-              }
-            });
-
-            card.addEventListener("dragleave", function() {
-              this.classList.remove("drag-over");
-            });
-
-            card.addEventListener("drop", function(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              this.classList.remove("drag-over");
-
-              if (draggedItem && draggedItem !== this) {
-                const draggedUrl = draggedItem.getAttribute("data-pin-url");
-                const targetUrl = this.getAttribute("data-pin-url");
-
-                let pinned = getPinnedLinks();
-                const fromIndex = pinned.indexOf(draggedUrl);
-                const toIndex = pinned.indexOf(targetUrl);
-
-                if (fromIndex !== -1 && toIndex !== -1) {
-                  // Remove dragged item and insert at target position
-                  pinned.splice(fromIndex, 1);
-                  pinned.splice(toIndex, 0, draggedUrl);
-
-                  setPinnedLinks(pinned);
-                  renderPage();
-
-                  // Maintain search filter if active
-                  const searchInput = document.getElementById("searchInput");
-                  if (searchInput.value) {
-                    searchInput.dispatchEvent(new Event("input"));
-                  }
-                }
-              }
-            });
-          });
-        }
-
-        function filterLinks() {
-          const query = document.getElementById("searchInput").value.toLowerCase().trim();
-          const categorySections = document.querySelectorAll(".category-group");
-
-          categorySections.forEach(section => {
-            const cards = section.querySelectorAll(".card");
-            let visibleCardsCount = 0;
-
-            cards.forEach(card => {
-              const title = card.getAttribute("data-title");
-              const url = card.getAttribute("data-url");
-
-              if (title.includes(query) || url.includes(query)) {
-                card.classList.remove("hidden");
-                visibleCardsCount++;
-              } else {
-                card.classList.add("hidden");
-              }
-            });
-
-            if (visibleCardsCount === 0) {
-              section.classList.add("hidden");
-            } else {
-              section.classList.remove("hidden");
-            }
-          });
-        }
-
-        // Initial Render
-        renderPage();
-      },
-      error: function(err) {
-        document.getElementById("app").innerHTML = "<p>Error loading CSV data.</p>";
-        console.error("PapaParse error:", err);
-      }
-    });
-  </script>
-</body>
-</html>
+            <a href="${item.URL}" class="card" ${draggableAttr} data-pin-url="${item.URL}" data-title="${(item.Title \vert{}\vert{} '').toLowerCase()}" data-url="${(item.URL || '').toLowerCase()}">
+              <button class="pin-overlay-btn ${isPinned ? 'pinned' : ''}" data-pin-url="${item.URL}" title="${isPinned ? 'Unpin' : 'Pin to top'}
